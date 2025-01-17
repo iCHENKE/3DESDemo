@@ -13,7 +13,8 @@
 // 3DES 加密方法的实现
 + (NSString *)encryptData:(NSString *)plainStr withKey:(NSString *)keyStr {
     NSData *plainData = [plainStr dataUsingEncoding:NSUTF8StringEncoding];
-    NSData *keyData = [keyStr dataUsingEncoding:NSUTF8StringEncoding];
+    
+    const void *vkey = (const void *) [keyStr UTF8String];
     unsigned char ivBytes[] = {0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF}; // 初始化向量，这里使用字节数组表示
     NSData *ivData = [NSData dataWithBytes:ivBytes length:sizeof(ivBytes)];
     
@@ -26,8 +27,8 @@
     CCCryptorStatus cryptStatus = CCCrypt(kCCEncrypt,
                                     kCCAlgorithm3DES,
                                     kCCOptionPKCS7Padding,
-                                    keyData.bytes,
-                                    keyData.length,
+                                          vkey,
+                                          kCCKeySize3DES,
                                     ivData.bytes,
                                     plainData.bytes,
                                     plainData.length,
@@ -47,7 +48,7 @@
 // 3DES 解密方法的实现
 + (NSString *)decryptData:(NSString *)encryptedStr withKey:(NSString *)keyStr {
     NSData *encryptedData = [self hexStringToData:encryptedStr];
-    NSData *keyData = [keyStr dataUsingEncoding:NSUTF8StringEncoding];
+    const void *vkey = (const void *) [keyStr UTF8String];
     unsigned char ivBytes[] = {0x12, 0x34, 0x56, 0x78, 0x90, 0xAB, 0xCD, 0xEF}; // 初始化向量，这里使用字节数组表示
     NSData *ivData = [NSData dataWithBytes:ivBytes length:sizeof(ivBytes)];
     
@@ -60,8 +61,8 @@
     CCCryptorStatus cryptStatus = CCCrypt(kCCDecrypt,
                                     kCCAlgorithm3DES,
                                     kCCOptionPKCS7Padding,
-                                    keyData.bytes,
-                                    keyData.length,
+                                          vkey,
+                                          kCCKeySize3DES,
                                     ivData.bytes,
                                     encryptedData.bytes,
                                     encryptedData.length,
@@ -70,13 +71,7 @@
                                     &numBytesDecrypted);
     if (cryptStatus == kCCSuccess) {
         NSData *decryptedData = [NSData dataWithBytesNoCopy:buffer length:numBytesDecrypted];
-        
-        
         NSString *decryptedText = [[NSString alloc] initWithData:decryptedData encoding:NSUTF8StringEncoding];
-        
-        
-        
-        
         return decryptedText;
     } else {
         free(buffer);

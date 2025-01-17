@@ -19,7 +19,7 @@
     // Override point for customization after application launch.
     
     NSString *plainText = @"123456";
-    NSString *keyString = @"123456781234567812345678"; // 密钥，长度应为 16 或 24 字节，这里仅为示例
+    NSString *keyString = @"b8cd52d822f60b182db3319b8effa977"; // 密钥，长度应为 16 或 24 字节，这里仅为示例
     
     // 加密
     NSString *dualStr1 = [ThreeDESUtil encryptData:plainText withKey:keyString];
